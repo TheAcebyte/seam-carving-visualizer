@@ -1,0 +1,1 @@
+import "/registry/icons.js";

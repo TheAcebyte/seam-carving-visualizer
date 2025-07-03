@@ -1,12 +1,12 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
 
 :root {
-  --primary-bg: #1a1a1a;
-  --secondary-bg: #242424;
-  --tertiary-bg: #2a2a2a;
-  --primary-fg: #f8f8f8;
-  --secondary-fg: #a0a0a0;
-  --tertiary-fg: #6a6a6a;
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #242424;
+  --bg-tertiary: #2a2a2a;
+  --fg-primary: #f8f8f8;
+  --fg-secondary: #a0a0a0;
+  --fg-tertiary: #6a6a6a;
   --separator: #303030;
 }
 
@@ -17,7 +17,7 @@
 }
 
 body {
-  background-color: var(--primary-bg);
+  background-color: var(--bg-primary);
   font-family: "Inter", sans-serif;
   font-optical-sizing: auto;
   font-style: normal;

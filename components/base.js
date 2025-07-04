@@ -1,6 +1,6 @@
 /**
  * @typedef {Object} ComponentProperties
- * @property {string} tag - HTML tag of the component.
+ * @property {string} tag - HTML tag of the component. Must contain at least one dash.
  * @property {string} path - Absolute path of the component's definition file.
  * @property {string[]} [styles] - Relative path of one or more external CSS file. Optional.
  */
@@ -14,6 +14,7 @@ export default class Component extends HTMLElement {
 
   constructor() {
     super();
+
     this.root = this.attachShadow({ mode: "open" });
     this.loadStyles();
     this.root.innerHTML = this.render();
@@ -59,20 +60,20 @@ export default class Component extends HTMLElement {
    *
    * @throws {Error} Throws if component is not registered.
    */
-  loadStyles() {
+  async loadStyles() {
     const name = this.constructor.name;
     if (!Component.registry.has(name)) {
       throw new Error("Component has not been registered.");
     }
 
     const properties = Component.registry.get(name);
+    if (!properties.styles) return;
+
     const basePath = new URL(properties.path).href;
-    if (properties.styles) {
-      properties.styles.forEach((relativePath) => {
-        const absolutePath = new URL(relativePath, basePath).toString();
-        this.loadStyle(absolutePath);
-      });
-    }
+    properties.styles.forEach((relativePath) => {
+      const absolutePath = new URL(relativePath, basePath).toString();
+      this.loadStyle(absolutePath);
+    });
   }
 
   /**

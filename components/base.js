@@ -60,7 +60,7 @@ export default class Component extends HTMLElement {
    *
    * @throws {Error} Throws if component is not registered.
    */
-  async loadStyles() {
+  loadStyles() {
     const name = this.constructor.name;
     if (!Component.registry.has(name)) {
       throw new Error("Component has not been registered.");

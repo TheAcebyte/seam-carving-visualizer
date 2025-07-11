@@ -1,4 +1,5 @@
 canvas {
   background-color: var(--bg-primary);
   display: block;
+  touch-action: none;
 }

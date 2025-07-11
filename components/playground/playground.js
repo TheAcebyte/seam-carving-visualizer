@@ -1,4 +1,4 @@
-import CanvasControl from "/lib/canvas-control.js";
+import CanvasControl from "/lib/canvas-control/canvas-control.js";
 import Component from "/components/base.js";
 import store from "/lib/store.js";
 import { html } from "/lib/utils.js";

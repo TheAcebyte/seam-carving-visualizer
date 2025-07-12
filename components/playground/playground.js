@@ -16,6 +16,8 @@ export default class Playground extends Component {
     this.ctx = this.canvas.getContext("2d");
     this.client = store.createClient();
     this.control = new CanvasControl(this.canvas, {
+      maxScale: store.helpers.getMaxScale(),
+      minScale: store.helpers.getMinScale(),
       getNextScale: store.helpers.getNextScale,
       getPreviousScale: store.helpers.getPreviousScale,
     });

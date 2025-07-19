@@ -1,13 +1,17 @@
 import CanvasControl from "/lib/canvas-control/canvas-control.js";
 import Component from "/components/base.js";
-import store from "/lib/store.js";
+import UploadAreaDrawer from "/components/playground/upload-area-drawer.js";
+import cursorRegistry from "/lib/cursor-registry.js";
+import store from "/lib/store/store.js";
 import { html } from "/lib/utils.js";
 
 export default class Playground extends Component {
   canvas;
   ctx;
   client;
-  control;
+
+  mouseX = 0;
+  mouseY = 0;
 
   constructor() {
     super();
@@ -21,6 +25,7 @@ export default class Playground extends Component {
       getNextScale: store.helpers.getNextScale,
       getPreviousScale: store.helpers.getPreviousScale,
     });
+    this.upload = new UploadAreaDrawer(this.canvas);
 
     this.resizeCanvas = this.resizeCanvas.bind(this);
     this.draw = this.draw.bind(this);
@@ -33,7 +38,9 @@ export default class Playground extends Component {
   connectedCallback() {
     this.resizeCanvas();
     window.addEventListener("resize", this.resizeCanvas);
+    this.setupListeners();
     this.subscribe();
+
     this.control.init();
     this.canvas.focus();
     this.draw();
@@ -48,9 +55,8 @@ export default class Playground extends Component {
     this.clearCanvas();
     this.control.step();
     this.updateStore();
-
-    this.ctx.fillStyle = "white";
-    this.ctx.fillRect(-50, -50, 100, 100);
+    this.checkHovers();
+    this.upload.draw();
 
     requestAnimationFrame(this.draw);
   }
@@ -77,6 +83,29 @@ export default class Playground extends Component {
     this.client.subscribe("x", (x) => this.control.setUserX(x));
     this.client.subscribe("y", (y) => this.control.setUserY(y));
     this.client.subscribe("scale", (scale) => this.control.setScale(scale));
+  }
+
+  setupListeners() {
+    this.canvas.addEventListener("mousemove", (event) => {
+      this.mouseX = event.x;
+      this.mouseY = event.y;
+    });
+  }
+
+  checkHovers() {
+    const worldPoint = this.control.getWorldCoordinates(this.mouseX, this.mouseY);
+    const worldX = worldPoint.x;
+    const worldY = worldPoint.y;
+
+    const iconCircle = this.upload.getIconCircle();
+    const hoveringIcon = iconCircle.containsPoint(worldX, worldY);
+    if (hoveringIcon) this.upload.hoverIcon();
+    if (!hoveringIcon) this.upload.unhoverIcon();
+
+    const linkRectangle = this.upload.getLinkRectangle();
+    const hoveringLink = linkRectangle.containsPoint(worldX, worldY);
+    if (hoveringLink) this.upload.hoverLink();
+    if (!hoveringLink) this.upload.unhoverLink();
   }
 }
 

@@ -1,7 +1,6 @@
 import CanvasControl from "/lib/canvas-control/canvas-control.js";
 import Component from "/components/base.js";
 import UploadAreaDrawer from "/components/playground/upload-area-drawer.js";
-import cursorRegistry from "/lib/cursor-registry.js";
 import store from "/lib/store/store.js";
 import { html } from "/lib/utils.js";
 
@@ -48,7 +47,7 @@ export default class Playground extends Component {
 
   disconnectedCallback() {
     window.removeEventListener("resize", this.resizeCanvas);
-    this.client.dispose();
+    this.client.unsubscribe();
   }
 
   draw() {
@@ -93,7 +92,10 @@ export default class Playground extends Component {
   }
 
   checkHovers() {
-    const worldPoint = this.control.getWorldCoordinates(this.mouseX, this.mouseY);
+    const worldPoint = this.control.getWorldCoordinates(
+      this.mouseX,
+      this.mouseY,
+    );
     const worldX = worldPoint.x;
     const worldY = worldPoint.y;
 
@@ -110,7 +112,7 @@ export default class Playground extends Component {
 }
 
 Component.register(Playground, {
-  tag: "c-playground",
+  tag: "x-playground",
   path: import.meta.url,
   styles: ["playground.css"],
 });

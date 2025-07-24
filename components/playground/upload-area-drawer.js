@@ -1,7 +1,7 @@
 import Circle from "/lib/shapes/circle.js";
 import ColorAnimator from "/lib/animator/color-animator.js";
 import Rectangle from "/lib/shapes/rectangle.js";
-import cursorRegistry from "/lib/cursor-registry.js";
+import cursorManager from "/lib/cursor-manager.js";
 import { Upload } from "lucide";
 import { getCSSVariable } from "/lib/utils.js";
 
@@ -87,7 +87,7 @@ export default class UploadAreaDrawer {
   constructor(canvas) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
-    this.cursorClient = cursorRegistry.createClient(canvas);
+    this.cursorClient = cursorManager.createClient(canvas);
 
     this.createIconCircle();
     this.createLinkRectangle();

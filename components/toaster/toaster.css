@@ -1,0 +1,50 @@
+.toast-container {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  translate: -50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.toast {
+  background-color: var(--bg-secondary);
+  color: var(--fg-primary);
+  font-weight: 500;
+  position: absolute;
+  width: 400px;
+  padding: 16px;
+  border: 1px solid var(--outline);
+  border-radius: 8px;
+  translate: 0 calc(-100% - 16px);
+  animation: fade-in 400ms forwards ease;
+}
+
+.toast[data-status="success"] {
+  background-color: var(--bg-success);
+  color: var(--fg-success);
+  border-color: color-mix(in srgb, currentColor 50%, transparent); 
+}
+
+.toast[data-status="error"] {
+  background-color: var(--bg-destructive);
+  color: var(--fg-destructive);
+  border-color: color-mix(in srgb, currentColor 50%, transparent); 
+}
+
+.toast[data-status="warning"] {
+  background-color: var(--bg-warning);
+  color: var(--fg-warning);
+  border-color: color-mix(in srgb, currentColor 50%, transparent); 
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}

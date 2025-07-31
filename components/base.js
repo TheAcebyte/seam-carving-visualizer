@@ -5,6 +5,10 @@
  * @property {string[]} [styles] - Relative path of one or more external CSS file. Optional.
  */
 
+/**
+ * @typedef {typeof Component} ComponentConstructor
+ */
+
 export default class Component extends HTMLElement {
   /** @type {Map<string, ComponentProperties>} Component registry */
   static registry = new Map();
@@ -23,7 +27,7 @@ export default class Component extends HTMLElement {
   /**
    * Registers a component's properties and adds it to the list of custom HTML elements.
    *
-   * @param {CustomElementConstructor} constructor - Constructor of the component. Name must be unique.
+   * @param {ComponentConstructor} constructor - Constructor of the component. Name must be unique.
    * @param {ComponentProperties} properties - Properties of the component.
    * @example
    * Component.register(CustomComponent, {

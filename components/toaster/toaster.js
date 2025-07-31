@@ -135,6 +135,8 @@ class Toaster extends Component {
    * @param {number} y
    */
   dragEnd(x, y) {
+    if (!this.dragging) return;
+
     this.dragging = false;
     this.checkPointerExit(x, y);
 
@@ -210,6 +212,9 @@ class Toaster extends Component {
   }
 
   reflowToasts() {
+    const toasts = this.getToastElements();
+    if (toasts.length == 0) return;
+
     if (this.layout == "stacked") this.stackToasts();
     if (this.layout == "expanded") this.expandToasts();
   }

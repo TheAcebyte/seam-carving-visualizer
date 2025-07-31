@@ -1,68 +1,104 @@
 import CanvasControl from "/lib/canvas-control/canvas-control.js";
 import Component from "/components/base.js";
-import UploadAreaDrawer from "/components/playground/upload-area-drawer.js";
+import ImageWidget from "./widgets/image/image-widget.js";
+import UploadWidget from "/components/playground/widgets/upload/upload-widget.js";
+import WidgetSet from "/components/playground/widgets/widget-set.js";
 import store from "/lib/store/store.js";
 import { html } from "/lib/utils.js";
 
 export default class Playground extends Component {
   canvas;
   ctx;
-  client;
-
-  mouseX = 0;
-  mouseY = 0;
+  control;
+  widgetSet;
+  storeClient;
 
   constructor() {
     super();
 
     this.canvas = this.root.querySelector("canvas");
     this.ctx = this.canvas.getContext("2d");
-    this.client = store.createClient();
     this.control = new CanvasControl(this.canvas, {
       maxScale: store.helpers.getMaxScale(),
       minScale: store.helpers.getMinScale(),
       getNextScale: store.helpers.getNextScale,
       getPreviousScale: store.helpers.getPreviousScale,
     });
-    this.upload = new UploadAreaDrawer(this.canvas);
+    this.widgetSet = new WidgetSet(this.control);
+    this.storeClient = store.createClient();
 
+    this.bindMethods();
+  }
+
+  bindMethods() {
     this.resizeCanvas = this.resizeCanvas.bind(this);
     this.draw = this.draw.bind(this);
   }
 
   render() {
-    return html`<canvas tabindex="0" />`;
+    return html`<canvas tabindex="0"></canvas>`;
   }
 
   connectedCallback() {
     this.resizeCanvas();
     window.addEventListener("resize", this.resizeCanvas);
-    this.setupListeners();
-    this.subscribe();
 
     this.control.init();
+    this.widgetSet.add(UploadWidget);
+    this.subscribeToStore();
+
     this.canvas.focus();
     this.draw();
   }
 
   disconnectedCallback() {
     window.removeEventListener("resize", this.resizeCanvas);
-    this.client.unsubscribe();
-  }
-
-  draw() {
-    this.clearCanvas();
-    this.control.step();
-    this.updateStore();
-    this.checkHovers();
-    this.upload.draw();
-
-    requestAnimationFrame(this.draw);
+    this.widgetSet.destroy();
+    this.storeClient.unsubscribe();
   }
 
   resizeCanvas() {
     this.canvas.width = window.innerWidth;
     this.canvas.height = window.innerHeight;
+  }
+
+  subscribeToStore() {
+    this.storeClient.subscribe("x", (x) => {
+      this.control.setUserX(x);
+    });
+
+    this.storeClient.subscribe("y", (y) => {
+      this.control.setUserY(y);
+    });
+
+    this.storeClient.subscribe("scale", (scale) => {
+      this.control.setScale(scale);
+    });
+
+    this.storeClient.subscribe("image", (image) => {
+      createImageBitmap(image).then((bitmap) => {
+        store.set("bitmap", bitmap);
+
+        if (image != null && this.widgetSet.has(UploadWidget)) {
+          this.widgetSet.remove(UploadWidget);
+          this.widgetSet.add(ImageWidget);
+        }
+
+        if (image == null && this.widgetSet.has(ImageWidget)) {
+          this.widgetSet.remove(ImageWidget);
+          this.widgetSet.add(UploadWidget);
+        }
+      });
+    });
+  }
+
+  draw() {
+    this.clearCanvas();
+    this.control.step();
+    this.widgetSet.step();
+    this.updateStore();
+
+    requestAnimationFrame(this.draw);
   }
 
   clearCanvas() {
@@ -73,41 +109,9 @@ export default class Playground extends Component {
   }
 
   updateStore() {
-    this.client.set("x", this.control.getUserX());
-    this.client.set("y", this.control.getUserY());
-    this.client.set("scale", this.control.getScale());
-  }
-
-  subscribe() {
-    this.client.subscribe("x", (x) => this.control.setUserX(x));
-    this.client.subscribe("y", (y) => this.control.setUserY(y));
-    this.client.subscribe("scale", (scale) => this.control.setScale(scale));
-  }
-
-  setupListeners() {
-    this.canvas.addEventListener("mousemove", (event) => {
-      this.mouseX = event.x;
-      this.mouseY = event.y;
-    });
-  }
-
-  checkHovers() {
-    const worldPoint = this.control.getWorldCoordinates(
-      this.mouseX,
-      this.mouseY,
-    );
-    const worldX = worldPoint.x;
-    const worldY = worldPoint.y;
-
-    const iconCircle = this.upload.getIconCircle();
-    const hoveringIcon = iconCircle.containsPoint(worldX, worldY);
-    if (hoveringIcon) this.upload.hoverIcon();
-    if (!hoveringIcon) this.upload.unhoverIcon();
-
-    const linkRectangle = this.upload.getLinkRectangle();
-    const hoveringLink = linkRectangle.containsPoint(worldX, worldY);
-    if (hoveringLink) this.upload.hoverLink();
-    if (!hoveringLink) this.upload.unhoverLink();
+    this.storeClient.set("x", this.control.getUserX());
+    this.storeClient.set("y", this.control.getUserY());
+    this.storeClient.set("scale", this.control.getScale());
   }
 }
 
